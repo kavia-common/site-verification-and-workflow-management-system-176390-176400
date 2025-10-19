@@ -1,20 +1,25 @@
 # site-verification-and-workflow-management-system-176390-176400
 
-Backend (Django + DRF) quick start
+Full-stack quick start (PostgreSQL + Django backend + Flutter frontend)
 
-1) Setup environment
-- Copy backend/.env.example to backend/.env and fill values (SECRET_KEY, DB connection).
-- Ensure PostgreSQL is reachable (default port 5001 per project plan).
+Preview/dev ports (consistent across containers):
+- PostgreSQL: 5001
+- Backend (Django): 3001
+- Flutter frontend: 3000
 
-2) Install dependencies
+1) Database (PostgreSQL)
+- Ensure a PostgreSQL instance is available on port 5001.
+- Connection example: host=localhost port=5001 dbname=myapp user=appuser password=dbuser123
+- For the database container, ensure postgresql_database/db_connection.txt points to port 5001.
+
+2) Backend (Django + DRF)
+- Copy backend/.env.example to backend/.env and adjust if needed.
 - From backend/: pip install -r requirements.txt
-
-3) Migrate and create admin
-- python manage.py migrate
-- python manage.py createsuperuser
-
-4) Run server
-- python manage.py runserver 0.0.0.0:8000
+- Migrations and admin:
+  - python manage.py migrate
+  - python manage.py createsuperuser
+- Run server on preview port 3001:
+  - python manage.py runserver 0.0.0.0:3001
 
 API and Auth
 - JWT login: POST /api/auth/login/ with { "username": "", "password": "" }
@@ -36,11 +41,21 @@ Docs
 Environment variables (backend/.env)
 - SECRET_KEY: Django secret.
 - DEBUG: True/False.
-- ALLOWED_HOSTS: comma-separated hosts.
-- POSTGRES_HOST, POSTGRES_PORT=5001, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
+- ALLOWED_HOSTS: comma-separated hosts (use * for previews).
+- POSTGRES_HOST=localhost
+- POSTGRES_PORT=5001
+- POSTGRES_DB=myapp
+- POSTGRES_USER=appuser
+- POSTGRES_PASSWORD=dbuser123
   or POSTGRES_URL=postgresql://user:pass@host:5001/dbname
-- CORS_ALLOW_ALL_ORIGINS (default True) or CORS_ALLOWED_ORIGINS (e.g., http://localhost:3000)
+- CORS_ALLOW_ALL_ORIGINS=true (or set CORS_ALLOWED_ORIGINS with http://localhost:3000)
 
 Notes
 - If DB env vars are not set, the backend falls back to SQLite for local dev.
 - For previews/CI, set POSTGRES_* envs to use the shared PostgreSQL on port 5001.
+
+3) Flutter Frontend
+- Ensure flutter_frontend/.env contains:
+  - BACKEND_BASE_URL=http://localhost:3001
+- Start the Flutter app targeting port 3000 for web preview (if applicable).
+- The dashboard performs a connectivity check to GET /api/health on init and displays status.
